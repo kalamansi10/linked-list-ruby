@@ -1,65 +1,147 @@
 class Node
-    @@list_ref = [0]
-    attr_accessor :value, :next_node
-    def initialize(input)
-        @value = input
-        @next_node = @@list_ref[-1] + 1
-        @@list_ref << next_node
+    attr_accessor :value, :next
+    def initialize(value=nil)
+      @value = value
+      @next = nil
     end
-end
-
-class LinkedList
-    attr_accessor :linked_list
+  end
+  
+  class LinkedList
+    attr_accessor :list
     def initialize
-        @linked_list = {}
+      @list = nil
     end
     def append(value)
-        node = Node.new(value)
-        linked_list[node.next_node] = node.value
+      if @list == nil
+        @list = Node.new(value)
+      else
+        end_of_list.next = Node.new(value)
+      end
     end
     def prepend(value)
-        node = Node.new(value)
-        self.linked_list = self.linked_list.map {|k, v| [k + 1, v]}.to_h
-        linked_list[1] = node.value
+      list_copy = @list
+      @list = Node.new(value)
+      @list.next = list_copy
+    end
+    def end_of_list
+      node = @list
+      return node if !node.next
+      return node if !node.next while (node = node.next)
     end
     def size
-        linked_list.count
+      return 0 if list == nil
+      node = @list
+      count = 1
+      until !node.next
+        node = node.next
+        count += 1
+      end
+      count
     end
     def head
-        linked_list[1]
+      @list.value
     end
-    def tails
-        linked_list[linked_list.count]
+    def tail
+      node = @list
+      return node.value if !node.next
+      return node.value if !node.next while (node = node.next)
     end
     def at(index)
-        linked_list[index]
+      node = @list
+      count = 0
+      until count == index
+        node = node.next
+        count += 1
+      end
+      node.value
     end
     def pop
-        linked_list.delete(linked_list.count)
+      return 0 if list == nil
+      node = @list
+      count = 1
+      until count == size - 1
+        node = node.next
+        count += 1
+      end
+      node.next = nil
     end
     def contains?(value)
-        linked_list.any? {|k, v| v == value}
+      node = @list
+      until !node
+        return true if value == node.value
+        node = node.next
+      end
+      false
     end
     def find(value)
-        linked_list.key(value)
+      node = @list
+      count = 1
+      until !node
+        return count if value == node.value
+        node = node.next
+        count += 1
+      end
+      nil
     end
     def to_s
-        stringed_list = ''
-        for i in 1..linked_list.count
-            stringed_list = stringed_list + "(#{linked_list[i]}) - > "
-        end
-        stringed_list = stringed_list + 'nil'
+      node = @list
+      string = "(#{node.value})"
+      until !node.next
+        node = node.next
+        string = string + " -> (#{node.value})"
+      end
+      string + ' -> nil'
     end
     def insert_at(value, index)
-        node = Node.new(value)
-        linked_list.count.downto(index) do |i|
-            linked_list[i + 1] = linked_list.delete(i)
-        end
-        linked_list[index] = value
+      return prepend(value) if index == 0
+      left_copy = find_at(index)
+      right_side = find_at(index - 1)
+      right_side.next = Node.new(value)
+      right_side.next.next = left_copy
     end
-    def pop(index)
-        linked_list.delete(index)
+    def find_at(index)
+      node = @list
+      count = 0
+      until count == index
+        node = node.next
+        count += 1
+      end
+      node
     end
-end
-
-
+    def remove_at(index)
+      left_copy = find_at(index + 1)
+      return @list = left_copy if index == 0
+      right_side = find_at(index - 1)
+      right_side.next = left_copy 
+    end
+  end
+  
+  linked_list = LinkedList.new
+  p linked_list.list
+  linked_list.append(10)
+  p linked_list.list
+  linked_list.append(20)
+  p linked_list.list
+  linked_list.append(30)
+  p linked_list.list
+  linked_list.prepend(40)
+  p linked_list.list
+  p linked_list.size
+  p linked_list.head
+  p linked_list.at(2)
+  p linked_list.tail
+  linked_list.pop
+  p linked_list.tail
+  p linked_list.list
+  p linked_list.contains?(20)
+  p linked_list.find(40)
+  p linked_list.to_s
+  linked_list.insert_at(11, 1)
+  p linked_list.to_s
+  linked_list.remove_at(1)
+  p linked_list.to_s
+  
+  
+  
+  
+  
